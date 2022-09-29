@@ -1,57 +1,34 @@
 from pico2d import *
 
-right = False
-left = False
-up = False
-down = False
 def handle_events():
     global running
-    global dir
-    global dir2
-    global right
-    global left
-    global up
-    global down
+    global dir_x
+    global dir_y
+
     events = get_events()
     for event in events:
         if event.type == SDL_QUIT:
             running = False
         elif event.type == SDL_KEYDOWN:
             if event.key == SDLK_RIGHT:
-                right = True
-                left = False
-                up = False
-                down = False
-                dir += 1
+                dir_x += 1
             elif event.key == SDLK_LEFT:
-                right = False
-                left = True
-                up = False
-                down = False
-                dir -= 1
+                dir_x -= 1
             elif event.key == SDLK_UP:
-                right = False
-                left = False
-                up = True
-                down = False
-                dir2 += 1
+                dir_y += 1
             elif event.key == SDLK_DOWN:
-                right = False
-                left = True
-                up = False
-                down = False
-                dir2 -= 1
+                dir_y -= 1
             elif event.key == SDLK_ESCAPE:
                 running = False
         elif event.type == SDL_KEYUP:
             if event.key == SDLK_RIGHT:
-                dir -= 1
+                dir_x -= 1
             elif event.key == SDLK_LEFT:
-                dir += 1
+                dir_x += 1
             elif event.key == SDLK_UP:
-                dir2 -= 1
+                dir_y -= 1
             elif event.key == SDLK_DOWN:
-                dir2 += -1
+                dir_y += 1
     pass
 
 
@@ -61,26 +38,51 @@ character = load_image('animation_sheet.png')
 
 running = True
 x = 800 // 2
-y = 90
+y = 50
 frame = 0
-dir = 0
-dir2 = 0
+dir_x = 0
+dir_y = 0
+d = 1
 
 while running:
     clear_canvas()
-    grass.draw(400, 30)
-    if(right == True):
+    grass.draw(400, 300)
+    handle_events()
+
+    if (dir_x == 0 and dir_y != 0):
+        y += dir_y * 5
+    elif (dir_y == 0 and dir_x != 0):
+        x += dir_x * 5
+
+    if (x > 800):
+        x -= dir_x * 5
+    elif (x < 0):
+        x -= dir_x * 5
+    if (y > 600):
+        y -= dir_y * 5
+    elif (y < 0):
+        y -= dir_y * 5
+
+    if(dir_x > 0):
         character.clip_draw(frame * 100, 100, 100, 100, x, y)
-    elif (left == True):
+        d = 1
+    elif (dir_x < 0):
         character.clip_draw(frame * 100, 0, 100, 100, x, y)
+        d = 0
+    elif(dir_x == 0 and dir_y == 0):
+        if(d == 1):
+            character.clip_draw(frame * 100, 300, 100, 100, x, y)
+        elif (d == 0):
+            character.clip_draw(frame * 100, 200, 100, 100, x, y)
+    elif(dir_y != 0):
+        if(d == 1):
+            character.clip_draw(frame * 100, 100, 100, 100, x, y)
+        elif(d == 0):
+            character.clip_draw(frame * 100, 0, 100, 100, x, y)
+
     update_canvas()
 
-    handle_events()
     frame = (frame + 1) % 8
-
-    x+=dir*5
-    y+=dir2*5
-
     delay(0.01)
 
 close_canvas()
